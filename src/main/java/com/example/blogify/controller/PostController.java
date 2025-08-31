@@ -32,5 +32,27 @@ public class PostController {
     @RequestParam(defaultValue = "10")int size,@RequestParam(defaultValue = "createdAt")String sortBy){
         return ResponseEntity.ok(postService.getAllPosts(page,size,sortBy));
     }
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse>getPostById(@PathVariable Long postId){
+        return ResponseEntity.ok(postService.getPostById(postId));
+
+    }
+    @PutMapping("/{postId}")
+    @PreAuthorize(("isAuthenticated()"))
+    public ResponseEntity<PostResponse>updatePost(@PathVariable Long postId, @Valid @RequestBody PostRequest postRequest, @AuthenticationPrincipal UserDetails userDetails){
+        {
+            return ResponseEntity.ok(postService.updatePost(postId,postRequest,userDetails.getUsername()));
+        }
+    }
+
+    @DeleteMapping("/{postId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void>deletePost(@PathVariable Long postId,@AuthenticationPrincipal UserDetails userDetails) {
+        postService.deletePost(postId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 
 }

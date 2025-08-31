@@ -30,11 +30,8 @@ public class UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
         userRepository.save(user);
-        //Generate JWT token
-        String token=jwtService.generateToken(user.getUserName());
-        //Return AuthResponse
 
-        return AuthResponse.builder().token(token).username(user.getUserName()).build();
+        return AuthResponse.builder().username(user.getUserName()).build();
     }
 
     public AuthResponse loginUser(LoginRequest request) throws AuthenticationException {

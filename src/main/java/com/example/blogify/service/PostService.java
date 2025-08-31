@@ -11,8 +11,10 @@ import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 
@@ -43,10 +45,25 @@ public class PostService {
     public void deletePost(Long postId, String userName){
         Post post=postRepository.findById(postId).orElseThrow(()->new RuntimeException("Post not found "));
         //PostNotFoundException
-        if(post.getAuthorId().getUserName().equals(userName)){
+        if(!post.getAuthorId().getUserName().equals(userName)){
             throw new RuntimeException("You can only delete your own posts");
             //UnauthorizedException
         }
+        postRepository.delete(post);
+    }
+
+
+    public PostResponse updatePost(Long postId, PostRequest postRequest, String userName){
+        Post post=postRepository.findById(postId).orElseThrow(()->new RuntimeException("Post not found"));
+        //postNotFoundException
+        if(!post.getAuthorId().getUserName().equals(userName)){
+            throw new RuntimeException("You can only update your own posts");
+            //UnauthorizedException
+        }
+        post.setTitle(postRequest.getTitle());
+        post.setContent(postRequest.getContent());
+        Post updatedPost=postRepository.save(post);
+        return mapToPostResponse(updatedPost);
     }
 
     private PostResponse mapToPostResponse(Post post){
