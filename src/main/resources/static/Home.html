@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogify - Home</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f5f7fa;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Navbar */
+        header {
+          background: #4a90e2;
+          color: #fff;
+          padding: 1rem 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        header h1 {
+          margin: 0;
+          font-size: 1.6rem;
+        }
+
+        nav a {
+          background: #fff;
+          color: #4a90e2;
+          text-decoration: none;
+          padding: 0.5rem 1rem;
+          border-radius: 6px;
+          font-size: 0.95rem;
+          transition: background 0.3s, color 0.3s;
+        }
+
+        nav a:hover {
+          background: #357abd;
+          color: #fff;
+        }
+
+        /* Post list */
+        .container {
+          max-width: 800px;
+          margin: 2rem auto;
+          padding: 0 1rem;
+        }
+
+        .post {
+          background: #fff;
+          padding: 1.5rem;
+          margin-bottom: 1.5rem;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .post h2 {
+          margin-top: 0;
+          color: #333;
+          font-size: 1.5rem;
+        }
+
+        .post p {
+          color: #555;
+          line-height: 1.6;
+          margin: 0.5rem 0 1rem;
+        }
+
+        .author {
+          font-size: 0.9rem;
+          color: #777;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Blogify - All Posts</h1>
+    <nav>
+        <a href="my-posts.html">Manage My Posts</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="post">
+        <h2>First Blog Post</h2>
+        <p>
+            This is the content of the first blog post. Blogify helps you manage and share your ideas
+            with the world in a simple and elegant way.
+        </p>
+        <div class="author">- Author: John Doe</div>
+    </div>
+
+    <div class="post">
+        <h2>Second Blog Post</h2>
+        <p>
+            Here is another post to showcase how posts look on the Blogify homepage. Each post contains
+            a title, content, and author information.
+        </p>
+        <div class="author">- Author: Jane Smith</div>
+    </div>
+
+    <div class="post">
+        <h2>Third Blog Post</h2>
+        <p>
+            With Blogify, managing your blogs becomes easier. You can create, edit, and view all posts
+            in one place with a clean design.
+        </p>
+        <div class="author">- Author: Alex Johnson</div>
+    </div>
+</div>
+</body>
+</html>
