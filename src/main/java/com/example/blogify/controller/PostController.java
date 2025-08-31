@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.http.HttpResponse;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,4 +27,10 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(postRequest,userDetails.getUsername()));
 
     }
+    @GetMapping
+    public ResponseEntity<List<PostResponse>>getAlllPosts(@RequestParam(defaultValue="0")int page,
+    @RequestParam(defaultValue = "10")int size,@RequestParam(defaultValue = "createdAt")String sortBy){
+        return ResponseEntity.ok(postService.getAllPosts(page,size,sortBy));
+    }
+
 }
