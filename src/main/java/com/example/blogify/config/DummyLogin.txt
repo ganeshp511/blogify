@@ -1,0 +1,33 @@
+{
+  "userName": "shailesh",
+  "password": "shailesh@1234",
+  "email": "shailesh@outlook.com"
+}
+{
+  "userName": "ganesh",
+  "password": "ganesh@1234",
+  "email": "ganesh@outlook.com"
+}
+
+# application.properties (production)
+jwt.secret=${JWT_SECRET}
+jwt.expiration=${JWT_EXPIRATION:3600}
+
+# Database
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+# application.properties (production)
+jwt.secret=${JWT_SECRET}
+jwt.expiration=${JWT_EXPIRATION:3600}
+
+# Database
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+export JWT_SECRET="wD1+Q3Yw7dCjJ+8yI6y0yoaK4h9xLxq9pMUnVznsR7YZgdk5+0Z3nVQy9gEv1cQbO3VJbF1O6BcCqg6aV5h5Cg=="
+export DB_URL="jdbc:mysql://localhost:3306/blogify_db"
+export DB_USERNAME="root"
+export DB_PASSWORD="1234"
