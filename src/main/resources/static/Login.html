@@ -82,22 +82,71 @@
 <body>
 <div class="login-container">
     <h1>Blogify Login</h1>
-    <form>
+    <form id="loginForm">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <!-- FIX: id and name both should match -->
+            <input type="text" id="username" name="userName" placeholder="Enter your username" required>
         </div>
-
         <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" placeholder="Enter your password" required>
         </div>
-
         <button type="submit" class="login-btn">Login</button>
     </form>
     <div class="footer-text">
         &copy; 2025 Blogify - Blog Management System
     </div>
 </div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      try {
+        const userName = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!userName || !password) {
+          alert("Please enter both username and password.");
+          return;
+        }
+
+        console.log('Sending login request...');
+
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userName, password }) // ✅ Matches DTO exactly
+        });
+
+        console.log('Login response status:', response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Login response:', data);
+
+          if (data?.token) {  // ✅ Safer null check
+            localStorage.setItem('jwt', data.token);
+            console.log('Token stored in localStorage');
+            alert('Login successful!');
+            window.location.href = 'Home.html';
+          } else {
+            console.error('No token in response:', data);
+            alert('Login failed: Server response missing token');
+          }
+        } else {
+          const errorData = await response.text();
+          console.error('Login failed:', errorData);
+          alert('Login failed: ' + (errorData || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed: ' + error.message);
+      }
+    });
+</script>
 </body>
 </html>

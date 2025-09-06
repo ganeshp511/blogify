@@ -63,6 +63,15 @@
           font-size: 1.5rem;
         }
 
+        .post h2 a {
+          text-decoration: none;
+          color: #4a90e2;
+        }
+
+        .post h2 a:hover {
+          text-decoration: underline;
+        }
+
         .post p {
           color: #555;
           line-height: 1.6;
@@ -83,33 +92,62 @@
     </nav>
 </header>
 
-<div class="container">
-    <div class="post">
-        <h2>First Blog Post</h2>
-        <p>
-            This is the content of the first blog post. Blogify helps you manage and share your ideas
-            with the world in a simple and elegant way.
-        </p>
-        <div class="author">- Author: John Doe</div>
-    </div>
-
-    <div class="post">
-        <h2>Second Blog Post</h2>
-        <p>
-            Here is another post to showcase how posts look on the Blogify homepage. Each post contains
-            a title, content, and author information.
-        </p>
-        <div class="author">- Author: Jane Smith</div>
-    </div>
-
-    <div class="post">
-        <h2>Third Blog Post</h2>
-        <p>
-            With Blogify, managing your blogs becomes easier. You can create, edit, and view all posts
-            in one place with a clean design.
-        </p>
-        <div class="author">- Author: Alex Johnson</div>
-    </div>
+<div class="container" id="postsContainer">
+    <p>Loading posts...</p>
 </div>
+
+<script>
+    async function fetchPosts() {
+        try {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                alert('No authentication token found. Please login.');
+                window.location.href = 'Login.html';
+                return;
+            }
+
+            const response = await fetch('/api/posts', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const container = document.getElementById('postsContainer');
+
+            if (response.ok) {
+                const posts = await response.json();
+                container.innerHTML = '';
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<p>No posts available.</p>';
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post';
+                    postDiv.innerHTML = `
+                        <h2><a href="Post.html?postId=${post.id}">${post.title}</a></h2>
+                        <p>${post.content}</p>
+                        <div class="author">- Author: ${post.author}</div>
+                    `;
+                    container.appendChild(postDiv);
+                });
+            } else if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem('jwt');
+                alert('Authentication failed. Please login again.');
+                window.location.href = 'Login.html';
+            } else {
+                container.innerHTML = '<p>Failed to load posts. Please try again later.</p>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('postsContainer').innerHTML = '<p>An error occurred while loading posts.</p>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchPosts);
+</script>
 </body>
 </html>

@@ -101,7 +101,7 @@
 
 <div class="container">
     <h2>Create New Post</h2>
-    <form>
+    <form id="createPostForm">
         <div class="form-group">
             <label for="title">Post Title</label>
             <input type="text" id="title" name="title" placeholder="Enter post title" required>
@@ -120,5 +120,28 @@
         <button type="submit" class="submit-btn">Publish Post</button>
     </form>
 </div>
+<script>
+    document.getElementById('createPostForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+        const author = document.getElementById('author').value;
+        const token = localStorage.getItem('jwt');
+        const response = await fetch('/api/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ title, content })
+        });
+        if (response.ok) {
+            alert('Post created successfully!');
+            window.location.href = 'Home.html';
+        } else {
+            alert('Failed to create post!');
+        }
+    });
+</script>
 </body>
 </html>

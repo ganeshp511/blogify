@@ -12,47 +12,48 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")  // Changed from "/api/posts" to "/posts"
 public class PostController {
     private final PostService postService;
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<PostResponse> createPosts(@Valid @RequestBody PostRequest postRequest, @AuthenticationPrincipal UserDetails userDetails){
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(postRequest,userDetails.getUsername()));
-
+    public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostRequest postRequest,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(postService.createPost(postRequest, userDetails.getUsername()));
     }
+
     @GetMapping
-    public ResponseEntity<List<PostResponse>>getAlllPosts(@RequestParam(defaultValue="0")int page,
-    @RequestParam(defaultValue = "10")int size,@RequestParam(defaultValue = "createdAt")String sortBy){
-        return ResponseEntity.ok(postService.getAllPosts(page,size,sortBy));
+    public ResponseEntity<List<PostResponse>> getAllPosts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy) {
+        return ResponseEntity.ok(postService.getAllPosts(page, size, sortBy));
     }
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostResponse>getPostById(@PathVariable Long postId){
-        return ResponseEntity.ok(postService.getPostById(postId));
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostResponse> getPostById(@PathVariable Long postId) {
+        return ResponseEntity.ok(postService.getPostById(postId));
     }
+
     @PutMapping("/{postId}")
-    @PreAuthorize(("isAuthenticated()"))
-    public ResponseEntity<PostResponse>updatePost(@PathVariable Long postId, @Valid @RequestBody PostRequest postRequest, @AuthenticationPrincipal UserDetails userDetails){
-        {
-            return ResponseEntity.ok(postService.updatePost(postId,postRequest,userDetails.getUsername()));
-        }
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId,
+                                                   @Valid @RequestBody PostRequest postRequest,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(postService.updatePost(postId, postRequest, userDetails.getUsername()));
     }
 
     @DeleteMapping("/{postId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void>deletePost(@PathVariable Long postId,@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
         postService.deletePost(postId, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
-
-
-
-
 }

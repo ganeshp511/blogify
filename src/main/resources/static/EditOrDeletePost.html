@@ -128,42 +128,91 @@
 
 <div class="container">
     <h2>Edit or Delete Your Post</h2>
-    <form>
+    <form id="editPostForm">
         <div class="form-group">
             <label for="title">Post Title</label>
-            <input type="text" id="title" name="title" value="Sample Blog Post Title" required>
+            <input type="text" id="title" name="title" value="" required>
         </div>
-
         <div class="form-group">
             <label for="content">Post Content</label>
-            <textarea id="content" name="content" required>Existing post content goes here for editing...</textarea>
+            <textarea id="content" name="content" required></textarea>
         </div>
-
         <div class="form-group">
             <label for="author">Author</label>
-            <input type="text" id="author" name="author" value="John Doe" readonly>
+            <input type="text" id="author" name="author" value="" readonly>
         </div>
-
         <div class="btn-group">
             <button type="submit" class="btn save-btn">Save Changes</button>
-            <a href="post-details.html" class="btn cancel-btn">Cancel</a>
-        </div>
-
-        <div class="btn-group">
-            <button type="button" class="btn delete-btn" onclick="confirmDelete()">Delete Post</button>
+            <a href="Post.html" class="btn cancel-btn">Cancel</a>
+            <button type="button" class="btn delete-btn" id="deleteBtn">Delete Post</button>
         </div>
     </form>
 </div>
-
 <script>
-    function confirmDelete() {
-      const confirmed = confirm("Are you sure you want to delete this post? This action cannot be undone.");
-      if (confirmed) {
-        // here you would call backend delete API
-        alert("Post deleted successfully!");
-        window.location.href = "home.html"; // redirect to home after delete
-      }
+    // Helper to get postId from query string
+    function getPostId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('postId');
     }
+    // Fetch post details and populate form
+    async function loadPost() {
+        const postId = getPostId();
+        if (!postId) return;
+        const token = localStorage.getItem('jwt');
+        const response = await fetch(`/api/posts/${postId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (response.ok) {
+            const post = await response.json();
+            document.getElementById('title').value = post.title;
+            document.getElementById('content').value = post.content;
+            document.getElementById('author').value = post.author;
+        }
+    }
+    loadPost();
+    // Handle edit (PUT)
+    document.getElementById('editPostForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const postId = getPostId();
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+        const token = localStorage.getItem('jwt');
+        const response = await fetch(`/api/posts/${postId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ title, content })
+        });
+        if (response.ok) {
+            alert('Post updated successfully!');
+            window.location.href = `Post.html?postId=${postId}`;
+        } else {
+            alert('Failed to update post!');
+        }
+    });
+    // Handle delete (DELETE)
+    document.getElementById('deleteBtn').addEventListener('click', async function() {
+        const postId = getPostId();
+        const token = localStorage.getItem('jwt');
+        if (confirm('Are you sure you want to delete this post?')) {
+            const response = await fetch(`/api/posts/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+            if (response.ok) {
+                alert('Post deleted successfully!');
+                window.location.href = 'Home.html';
+            } else {
+                alert('Failed to delete post!');
+            }
+        }
+    });
 </script>
 </body>
 </html>

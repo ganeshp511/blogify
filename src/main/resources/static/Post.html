@@ -82,16 +82,37 @@
 </header>
 
 <div class="container">
-    <div class="post-title">Sample Blog Post Title</div>
-    <div class="post-content">
-        This is the full content of the selected blog post.
-        It can contain multiple paragraphs, formatting, and details that the author wants to share.
-
-        Blogify makes it easy to manage your blog posts and present them in a clean, readable way.
-    </div>
-    <div class="post-author">- Author: John Doe</div>
-
-    <a href="home.html" class="back-btn">← Back to All Posts</a>
+    <div class="post-title" id="postTitle"></div>
+    <div class="post-content" id="postContent"></div>
+    <div class="post-author" id="postAuthor"></div>
+    <a href="Home.html" class="back-btn">← Back to All Posts</a>
 </div>
+<script>
+    function getPostId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('postId');
+    }
+    async function loadPost() {
+        const postId = getPostId();
+        if (!postId) return;
+        const token = localStorage.getItem('jwt');
+        const response = await fetch(`/api/posts/${postId}`, {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (response.ok) {
+            const post = await response.json();
+            document.getElementById('postTitle').textContent = post.title;
+            document.getElementById('postContent').textContent = post.content;
+            document.getElementById('postAuthor').textContent = `- Author: ${post.author}`;
+        } else {
+            document.getElementById('postTitle').textContent = 'Post not found.';
+            document.getElementById('postContent').textContent = '';
+            document.getElementById('postAuthor').textContent = '';
+        }
+    }
+    loadPost();
+</script>
 </body>
 </html>

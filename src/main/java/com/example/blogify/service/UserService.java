@@ -5,45 +5,71 @@ import com.example.blogify.dto.LoginRequest;
 import com.example.blogify.dto.RegisterRequest;
 import com.example.blogify.entity.User;
 import com.example.blogify.repository.UserRepository;
-import io.jsonwebtoken.Jwts;
+import com.example.blogify.security.JWTHelper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.example.blogify.config.JWTUtil;
-
-import javax.security.sasl.AuthenticationException;
-import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JWTUtil jwtService;
+    private final AuthenticationManager authenticationManager;
+    private final JWTHelper jwtHelper;
+    private final UserDetailsService userDetailsService;
 
+    // Register user
     public AuthResponse registerUser(RegisterRequest request) {
-        // Logic to register user
-        User user=User.builder()
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already in use");
+        }
+
+        User user = User.builder()
                 .userName(request.getUserName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
+
         userRepository.save(user);
 
-        return AuthResponse.builder().username(user.getUserName()).build();
+        // Use the UserDetailsService instead of creating UserDetails manually
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        String token = jwtHelper.generateToken(userDetails);
+
+        return AuthResponse.builder()
+                .token(token)
+                .username(user.getUserName())
+                .email(user.getEmail())
+                .build();
     }
 
-    public AuthResponse loginUser(LoginRequest request) throws AuthenticationException {
-        //Authenticate user
-        Optional<User> userOpt = userRepository.findByUserName(request.getUserName());
-        User user = userOpt.orElseThrow(() -> new AuthenticationException("Invalid username"));
-        if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
-            throw new AuthenticationException("Invalid password");
-        }
-        //Generate JWT token
-        String token=jwtService.generateToken(user.getUserName());
-        //Return AuthResponse
-        return AuthResponse.builder().token(token).username(user.getUserName()).build();
+    // Login user
+    public AuthResponse loginUser(LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(), request.getPassword()
+                )
+        );
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String token = jwtHelper.generateToken(userDetails);
+
+        // Fetch user entity from DB (to get username + email)
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return AuthResponse.builder()
+                .token(token)
+                .username(user.getUserName())
+                .email(user.getEmail())
+                .build();
     }
 }
